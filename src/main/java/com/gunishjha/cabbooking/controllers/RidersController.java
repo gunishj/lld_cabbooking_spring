@@ -2,17 +2,21 @@ package com.gunishjha.cabbooking.controllers;
 
 import com.gunishjha.cabbooking.database.RidersManager;
 import com.gunishjha.cabbooking.database.TripsManager;
+import com.gunishjha.cabbooking.model.Location;
 import com.gunishjha.cabbooking.model.Rider;
+import com.gunishjha.cabbooking.model.Trip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class RidersController {
     private RidersManager ridersManager;
     private TripsManager tripsManager;
 
-    @Autowired
+
     public RidersController(RidersManager ridersManager,TripsManager tripsManager){
         this.ridersManager=ridersManager;
         this.tripsManager=tripsManager;
@@ -25,6 +29,24 @@ public class RidersController {
         return ResponseEntity.ok("");
     }
 
+    @RequestMapping(value = "book",method = RequestMethod.POST)
+    public ResponseEntity book(final String riderId,
+                               final Double sourceX,
+                               final Double sourceY,
+                               final Double destX,
+                               final Double destY){
+        tripsManager.createTrip(
+                ridersManager.getRider(riderId),
+                new Location(sourceX,sourceY),
+                new Location(destX,destY)
+        );
+        return ResponseEntity.ok("");
+    }
 
+    @RequestMapping(value = "/book", method = RequestMethod.GET)
+    public ResponseEntity fetchHistory(final String riderId){
 
+        List<Trip> trips = tripsManager.tripHistory(ridersManager.getRider(riderId));
+        return ResponseEntity.ok(trips);
+    }
 }
